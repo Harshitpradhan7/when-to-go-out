@@ -1,5 +1,6 @@
 name: Daily AQI Fetch
 
+
 on:
   schedule:
     # 12:00 AM IST = 18:30 UTC
@@ -33,6 +34,8 @@ jobs:
           date
 
       - name: Run daily AQI fetch
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           python jobs/daily_fetch.py || exit 1
 
