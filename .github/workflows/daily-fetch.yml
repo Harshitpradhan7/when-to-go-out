@@ -1,0 +1,50 @@
+name: Daily AQI Fetch
+
+on:
+  schedule:
+    # 12:00 AM IST = 18:30 UTC
+    - cron: "30 18 * * *"
+  workflow_dispatch:
+
+jobs:
+  fetch-aqi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TZ: Asia/Kolkata
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Show current IST time
+        run: |
+          date
+
+      - name: Run daily AQI fetch
+        run: |
+          python jobs/daily_fetch.py || exit 1
+
+      - name: Commit and push updated data
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          if [[ -n $(git status --porcelain data/) ]]; then
+            git add data/
+            git commit -m "Daily AQI data update"
+            git push
+          else
+            echo "No data changes to commit"
+          fi

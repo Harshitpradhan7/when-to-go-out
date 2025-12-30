@@ -3,6 +3,9 @@ import json
 import time
 from pathlib import Path
 from datetime import date, datetime
+import os
+
+os.environ["TZ"] = "Asia/Kolkata"
 
 from src.penalties import (
     get_duration_factor,
@@ -14,17 +17,16 @@ from src.windows import generate_time_windows
 from src.ranker import label_windows
 
 
-# -----------------------
+
 # Page config
-# -----------------------
+
 st.set_page_config(
     page_title="When Should I Go Out?",
     layout="centered",
 )
 
-# -----------------------
 # Header
-# -----------------------
+
 st.markdown("## 🏙️ When should I go outside today?")
 st.caption(
     "A decision assistant that weighs air quality, duration, "
@@ -33,9 +35,8 @@ st.caption(
 
 st.markdown("---")
 
-# -----------------------
 # User inputs
-# -----------------------
+
 st.markdown("### Tell me about your plan")
 
 col1, col2 = st.columns(2)
@@ -64,14 +65,13 @@ st.caption(
     "Longer duration and higher activity increase pollution exposure."
 )
 
-# -----------------------
 # Analyze button (GATE)
-# -----------------------
+
 analyze = st.button("Analyze safest time")
 
-# -----------------------
+
 # Load AQI data (read-only)
-# -----------------------
+
 
 JSON_PATH = Path("data/delhi_hourly_aqi.json")
 
@@ -89,33 +89,29 @@ if not hourly_aqi:
     st.error("No AQI data available for today.")
     st.stop()
 
-
-
-# ======================================================
 # COMPUTATION HAPPENS ONLY AFTER BUTTON CLICK
-# ======================================================
+
 if analyze:
     with st.spinner("Analyzing air quality…"):
         time.sleep(0.5)
 
-        # -----------------------
+
         # Compute factors
-        # -----------------------
+
         duration_factor = get_duration_factor(duration)
         activity_factor = get_activity_factor(activity)
 
-        # -----------------------
         # Generate windows
-        # -----------------------
+
         windows = generate_time_windows(hourly_aqi, duration)
 
         if not windows:
             st.error("No valid time windows found for today.")
             st.stop()
 
-        # -----------------------
+
         # Compute exposure
-        # -----------------------
+
         for w in windows:
             hour_penalties = [get_time_penalty(h) for h in w["hours"]]
             time_penalty = sum(hour_penalties) / len(hour_penalties)
@@ -127,9 +123,8 @@ if analyze:
                 time_penalty,
             )
 
-        # -----------------------
         # Normalize exposure
-        # -----------------------
+
         max_exposure = max(w["exposure"] for w in windows)
 
         for w in windows:
@@ -137,9 +132,8 @@ if analyze:
                 (w["exposure"] / max_exposure) * 100, 1
             )
 
-        # -----------------------
         # Filter future-only windows
-        # -----------------------
+       
         current_hour = datetime.now().hour
 
         windows = [
@@ -155,9 +149,7 @@ if analyze:
             )
             st.stop()
 
-        # -----------------------
         # Rank & label
-        # -----------------------
         windows = sorted(windows, key=lambda x: x["exposure"])
         windows = label_windows(windows)
 
@@ -168,9 +160,7 @@ if analyze:
             worst["exposure"] / best["exposure"], 1
         )
 
-    # ======================================================
-    # RESULTS (AFTER SPINNER)
-    # ======================================================
+    # RESULTS
 
     st.markdown("---")
     st.markdown("### ✅ Best time to go out (from now)")
@@ -288,13 +278,13 @@ if analyze:
             "Risk difference is modest. Short trips are manageable with caution."
         )
 
-    # -----------------------
-    # Optional: Show all windows
-    # -----------------------
+    
+    # Show all windows
+
     with st.expander("Show all remaining windows"):
         for w in windows:
             st.write(
                 f"{w['start_hour']}:00–{w['end_hour']}:00 · "
-                f"Score {w['NormalizedScore']} · {w['label']} . "
+                f"Score {w['NormalizedScore']}  "
                 f"Exposure {w['exposure']} · {w['label']} . "
             )

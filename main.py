@@ -59,7 +59,7 @@ for w in windows:
         (w["exposure"] / max_exposure) * 100, 1
     )
 
-current_hour = datetime.now().hour -1
+current_hour = datetime.now().hour 
 
 windows = [
     w for w in windows

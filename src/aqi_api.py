@@ -21,7 +21,7 @@ def fetch_and_store_hourly_city_aqi(
         "latitude": lat,
         "longitude": lon,
         "hourly": "us_aqi",
-        "forecast_days": 1,
+        "forecast_days": 3,
         "timezone": "auto"
     }
 
