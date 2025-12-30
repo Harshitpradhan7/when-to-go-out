@@ -279,7 +279,7 @@ if analyze:
         )
 
     
-    # Show all windows
+    # Show all windows along with risks
 
     with st.expander("Show all remaining windows"):
         for w in windows:
@@ -288,3 +288,4 @@ if analyze:
                 f"Score {w['NormalizedScore']}  "
                 f"Exposure {w['exposure']} · {w['label']} . "
             )
+
