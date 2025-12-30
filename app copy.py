@@ -4,9 +4,8 @@ import time
 from pathlib import Path
 from datetime import date, datetime
 import os
-from zoneinfo import ZoneInfo
 
-IST = ZoneInfo("Asia/Kolkata")
+os.environ["TZ"] = "Asia/Kolkata"
 
 from src.penalties import (
     get_duration_factor,
@@ -135,7 +134,7 @@ if analyze:
 
         # Filter future-only windows
        
-        current_hour = datetime.now(IST).hour
+        current_hour = datetime.now().hour
 
         windows = [
             w for w in windows
@@ -280,7 +279,7 @@ if analyze:
         )
 
     
-    # Show all windows along with risks
+    # Show all windows
 
     with st.expander("Show all remaining windows"):
         for w in windows:
@@ -289,4 +288,3 @@ if analyze:
                 f"Score {w['NormalizedScore']}  "
                 f"Exposure {w['exposure']} · {w['label']} . "
             )
-
